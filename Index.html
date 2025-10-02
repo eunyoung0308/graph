@@ -148,8 +148,10 @@
                     grid: true,
                     data: [{
                         fn: functionString,
-                        sampler: 'builtIn', // this will survey thePlot's bounds
-                        graphType: 'polyline'
+                        sampler: 'builtIn', // 'built-in'에서 'builtIn'으로 수정
+                        graphType: 'polyline',
+                        color: '#34495e',
+                        strokeWidth: 5
                     }]
                 });
             } catch (err) {
