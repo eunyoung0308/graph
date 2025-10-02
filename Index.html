@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다항함수 그래프</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- function-plot 라이브러리 추가 -->
+    <script src="https://unpkg.com/function-plot/dist/function-plot.js"></script>
+    <style>
+        :root {
+            --bg-color: #f4f7f9;
+            --container-bg: #ffffff;
+            --primary-color: #34495e;
+            --accent-color: #3498db;
+            --border-color: #dfe4ea;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 32px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: #7f8c8d;
+            margin-bottom: 24px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .function-input {
+            flex-grow: 1;
+            border: 2px solid var(--border-color);
+            background-color: #fdfdfd;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-family: 'Noto Sans KR', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .function-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: var(--accent-color);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* 그래프가 그려질 영역 */
+        #plot-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        #error-message {
+            color: #e74c3c;
+            height: 20px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>다항함수 그래프</h1>
+        <p>함수식을 입력하고 그래프를 확인해보세요.</p>
+        
+        <div class="input-container">
+            <input type="text" id="function-input" class="function-input" placeholder="예: x^3 - 6*x^2 + 4*x + 12">
+            <button id="draw-btn" class="btn">그리기</button>
+        </div>
+        <p id="error-message"></p>
+        
+        <div id="plot-container"></div>
+    </div>
+
+    <script>
+        // HTML 요소
+        const functionInput = document.getElementById('function-input');
+        const drawBtn = document.getElementById('draw-btn');
+        const plotContainer = document.getElementById('plot-container');
+        const errorMessage = document.getElementById('error-message');
+
+        // 그래프를 그리는 함수
+        function drawGraph() {
+            errorMessage.textContent = ''; // 이전 오류 메시지 초기화
+            const functionString = functionInput.value || 'x^2'; // 입력값이 없으면 기본값 사용
+
+            try {
+                functionPlot({
+                    target: '#plot-container',
+                    width: plotContainer.clientWidth,
+                    height: plotContainer.clientHeight,
+                    yAxis: { domain: [-10, 10] },
+                    xAxis: { domain: [-10, 10] },
+                    grid: true,
+                    data: [{
+                        fn: functionString,
+                        sampler: 'builtIn', // this will survey thePlot's bounds
+                        graphType: 'polyline'
+                    }]
+                });
+            } catch (err) {
+                console.error('Error drawing graph:', err);
+                errorMessage.textContent = '올바른 함수식을 입력해주세요. (예: x^2 * 5)';
+                // 에러 발생 시 기존 그래프 지우기
+                plotContainer.innerHTML = '';
+            }
+        }
+        
+        // 버튼 클릭 이벤트
+        drawBtn.addEventListener('click', drawGraph);
+        
+        // 엔터 키로도 그래프 그리기
+        functionInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                drawGraph();
+            }
+        });
+        
+        // 창 크기가 변경될 때 그래프 다시 그리기 (반응형)
+        window.addEventListener('resize', () => {
+             // 입력값이 있을 때만 다시 그림
+            if(functionInput.value) {
+                drawGraph();
+            }
+        });
+
+
+        // 페이지 로드 시 예시 그래프를 한번 그려줍니다.
+        window.onload = () => {
+            functionInput.value = 'x^2';
+            drawGraph();
+        };
+
+    </script>
+</body>
+</html>
+
